@@ -2,18 +2,29 @@
  * In this file, we create a React component
  * which incorporates components provided by Material-UI.
  */
-import React, {Component} from 'react';
-import RaisedButton from 'material-ui/RaisedButton';
-import Dialog from 'material-ui/Dialog';
-import {deepOrange500} from 'material-ui/styles/colors';
-import FlatButton from 'material-ui/FlatButton';
+import React, { PropTypes, Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { deepOrange500 } from 'material-ui/styles/colors';
+import Chip from 'material-ui/Chip';
+import TextField from 'material-ui/TextField';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { todoActions } from '../actions';
 
 const styles = {
   container: {
     textAlign: 'center',
     paddingTop: 200,
+  },
+  chip: {
+    margin: 4,
+  },
+  wrapper: {
+    width: '50%',
+    margin: '0 auto',
+    display: 'flex',
+    flexWrap: 'wrap',
   },
 };
 
@@ -26,53 +37,42 @@ const muiTheme = getMuiTheme({
 class Main extends Component {
   constructor(props, context) {
     super(props, context);
-
-    this.handleRequestClose = this.handleRequestClose.bind(this);
-    this.handleTouchTap = this.handleTouchTap.bind(this);
-
-    this.state = {
-      open: false,
-    };
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
-  handleRequestClose() {
-    this.setState({
-      open: false,
-    });
-  }
+  onKeyDown(event) {
+    const { actions } = this.props;
+    const { key, target } = event;
+    const { value } = target;
 
-  handleTouchTap() {
-    this.setState({
-      open: true,
-    });
+    if (key === 'Enter' && value) {
+      actions.addTodo(value);
+      target.value = '';
+    }
   }
 
   render() {
-    const standardActions = (
-      <FlatButton
-        label="Ok"
-        primary={true}
-        onTouchTap={this.handleRequestClose}
-      />
-    );
+    const { todos, actions } = this.props;
 
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={styles.container}>
-          <Dialog
-            open={this.state.open}
-            title="Super Secret Password"
-            actions={standardActions}
-            onRequestClose={this.handleRequestClose}
-          >
-            1-2-3-4-5
-          </Dialog>
-          <h1>Material-UI</h1>
-          <h2>example project</h2>
-          <RaisedButton
-            label="Super Secret Password"
-            secondary={true}
-            onTouchTap={this.handleTouchTap}
+          <div style={styles.wrapper}>
+            {
+              todos.map((todo,i) => (
+                <Chip
+                  key={i}
+                  style={styles.chip}
+                  onRequestDelete={() => actions.deleteTodo(todo.id)}
+                >
+                  {todo.text}
+                </Chip>
+              ))
+            }
+          </div>
+          <TextField
+            hintText="say something"
+            onKeyDown={this.onKeyDown}
           />
         </div>
       </MuiThemeProvider>
@@ -80,4 +80,12 @@ class Main extends Component {
   }
 }
 
-export default Main;
+Main.propTypes = {
+  todos: PropTypes.array.isRequired,
+  actions: PropTypes.object.isRequired,
+};
+
+export default connect(
+  (state) => ({todos: state.todo}), // map state to props
+  (dispatch) => ({actions: bindActionCreators(todoActions, dispatch)}) // wrap actions with dispatches
+)(Main);
