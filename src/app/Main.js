@@ -10,6 +10,7 @@ import Chip from 'material-ui/Chip';
 import TextField from 'material-ui/TextField';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Indicator from './Indicator';
 import { todoActions } from '../actions';
 
 const styles = {
@@ -52,7 +53,7 @@ class Main extends Component {
   }
 
   render() {
-    const { todos, actions } = this.props;
+    const { share, todos, actions } = this.props;
 
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
@@ -73,7 +74,9 @@ class Main extends Component {
           <TextField
             hintText="say something"
             onKeyDown={this.onKeyDown}
+            disabled={share.loading}
           />
+          { share.loading ? <Indicator /> : '' }
         </div>
       </MuiThemeProvider>
     );
@@ -86,6 +89,6 @@ Main.propTypes = {
 };
 
 export default connect(
-  (state) => ({todos: state.todo}), // map state to props
+  (state) => ({share: state.share, todos: state.todo}), // map state to props
   (dispatch) => ({actions: bindActionCreators(todoActions, dispatch)}) // wrap actions with dispatches
 )(Main);

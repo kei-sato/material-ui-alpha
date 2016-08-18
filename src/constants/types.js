@@ -1,5 +1,7 @@
 export default {
   ADD_TODO        : 'ADD_TODO',
+  SHOW_LOADING    : 'SHOW_LOADING',
+  HIDE_LOADING    : 'HIDE_LOADING',
   DELETE_TODO     : 'DELETE_TODO',
   EDIT_TODO       : 'EDIT_TODO',
   COMPLETE_TODO   : 'COMPLETE_TODO',
