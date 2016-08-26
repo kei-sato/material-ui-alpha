@@ -79,7 +79,7 @@ const indexHtml = `
 </html>
 `;
 
-app.get('/', function (req, res) {
+app.get('*', function (req, res) {
   res.send(indexHtml);
 });
 

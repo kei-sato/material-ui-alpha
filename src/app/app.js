@@ -1,6 +1,7 @@
 import React from 'react';
-import {render} from 'react-dom';
-import {Provider} from 'react-redux';
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { browserHistory, Router, Route } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import configureStore from '../store/configureStore';
 import Main from './Main'; // Our custom react component
@@ -14,9 +15,18 @@ injectTapEventPlugin();
 
 const store = configureStore();
 
+const About = React.createClass({
+  render() {
+    return <h1>About</h1>
+  }
+});
+
 const rootComponent = (
   <Provider store={store}>
-    <Main />
+    <Router history={browserHistory}>
+      <Route path="/about" component={About} />
+      <Route path="*" component={Main} />
+    </Router>
   </Provider>
 );
 const rootElement = document.getElementById('app');
