@@ -1,2 +1,3 @@
 import * as todoActions from './todo';
-export { todoActions };
+import * as userActions from './user';
+export { todoActions, userActions };

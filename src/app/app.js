@@ -1,10 +1,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import { browserHistory, Router, Route } from 'react-router'
+import { browserHistory, Router, Route, IndexRoute } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import configureStore from '../store/configureStore';
 import Main from './Main'; // Our custom react component
+import { MyPage, Login, Logout, Dashboard } from './mypage';
 
 //Needed for React Developer Tools
 window.React = React;
@@ -13,7 +14,10 @@ window.React = React;
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
 
-const store = configureStore();
+// appended during server side rendering
+const initialState = window.__INITIAL_STATE__;
+
+const store = configureStore(initialState, browserHistory);
 
 const About = React.createClass({
   render() {
@@ -21,11 +25,28 @@ const About = React.createClass({
   }
 });
 
+function requireAuth(nextState, replace, callback) {
+  const { user: { isAuthenticated }} = store.getState();
+  if (!isAuthenticated) {
+    replace({
+      pathname: '/mypage/login',
+      state: { nextPathname: nextState.location.pathname }
+    });
+  }
+  callback();
+}
+
 const rootComponent = (
   <Provider store={store}>
     <Router history={browserHistory}>
-      <Route path="/about" component={About} />
-      <Route path="*" component={Main} />
+      <Route path="/">
+        <IndexRoute component={Main} />
+        <Route path="about" component={About} />
+        <Route path="mypage" component={MyPage}>
+          <IndexRoute component={Dashboard} onEnter={requireAuth} />
+          <Route path="login" component={Login} />
+        </Route>
+      </Route>
     </Router>
   </Provider>
 );
